@@ -1,0 +1,11 @@
+
+venv
+
+**/.terraform/**
+*.tfstate
+
+out.zip
+
+.DS_Store
+.idea
+.vscode
