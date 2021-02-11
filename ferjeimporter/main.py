@@ -1,6 +1,8 @@
 import json
 import boto3
 
+from ferjeimporter.ais_processor import filter_and_clean_ais_items
+
 s3 = boto3.client('s3')
 
 
@@ -19,8 +21,12 @@ def handler(event, context):
 
     data = s3.get_object(Bucket=bucket, Key=filename)
     contents = data['Body'].read()
-    print('Contents from file')
-    print(contents)
+
+    filter_and_clean_ais_items(contents)
+
+    # Processed files are no longer of use and can be discarded
+    s3.delete_object(Bucket=bucket, Key=filename)
+
     return {
         'statusCode': 200,
         'body': json.dumps({
