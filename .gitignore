@@ -3,6 +3,7 @@ venv
 
 **/.terraform/**
 *.tfstate
+*.tfstate.*
 
 out.zip
 
