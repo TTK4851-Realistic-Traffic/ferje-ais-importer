@@ -1,7 +1,7 @@
 import json
 import boto3
 
-from ferjeimporter.ais_processor import filter_and_clean_ais_items
+from ais_processor import filter_and_clean_ais_items
 
 s3 = boto3.client('s3')
 
