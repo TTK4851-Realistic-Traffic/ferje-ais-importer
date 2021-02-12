@@ -32,6 +32,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
+            pip3 install virtualenv
             virtualenv venv --python=python3.8
             source ./venv/bin/activate
             pip3 install -r requirements-frozen.txt
