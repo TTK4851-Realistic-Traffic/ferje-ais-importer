@@ -1,0 +1,54 @@
+version: 2.1
+
+commands:
+  pip_cache:
+    description: "Restores the cache of pip dependencies"
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements-frozen.txt" }}
+            # Fallbacks to the latest cache
+            - v1-dependencies-
+  save_pip_cache:
+    description: "Persists our cache of pip dependencies"
+    steps:
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements-frozen.txt" }}
+
+
+defaults: &defaults
+  docker:
+    - image: python:3.8
+  working_directory: ~/repo
+
+jobs:
+  build-and-test:
+    <<: *defaults
+    steps:
+      - checkout
+      - pip_cache
+      - run:
+          name: Install Dependencies
+          command: |
+            virtualenv venv --python=python3.8
+            source ./venv/bin/activate
+            pip3 install -r requirements-frozen.txt
+      - save_pip_cache
+      - run:
+          command: echo "Hello world"
+          name: Test
+  deploy-production:
+    <<: *defaults
+    steps:
+      - checkout
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
+      - deploy-production:
+          filters:
+            branches:
+              only: master

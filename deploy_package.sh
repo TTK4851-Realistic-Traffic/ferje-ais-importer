@@ -18,7 +18,7 @@ echo ""
 echo "⏳ Deploying docker image to lambda..."
 echo ""
 cd terraform/prod
-terraform apply
+terraform apply -auto-approve
 
 cd ../../
 
