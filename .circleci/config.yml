@@ -52,13 +52,25 @@ jobs:
             sudo ./aws/install
       - run:
           name: Docker Login to ECR
-          command: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_BASE_URL
+          environment:
+            # Set default region here to prevent circleci from masking us-east-1 in terraform plans
+            AWS_DEFAULT_REGION: us-east-1
+            ECR_BASE_URL: "314397620259.dkr.ecr.us-east-1.amazonaws.com"
+          command: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_BASE_URL
       - run:
           name: Build
-          command: docker build -t $ECR_REPOSITORY_BASE_URL/ferje-ais-importer-prod:$CIRCLE_SHA1 .
+          environment:
+            # Set default region here to prevent circleci from masking us-east-1 in terraform plans
+            AWS_DEFAULT_REGION: us-east-1
+            ECR_BASE_URL: "314397620259.dkr.ecr.us-east-1.amazonaws.com"
+          command: docker build -t $ECR_BASE_URL/ferje-ais-importer-prod:$CIRCLE_SHA1 .
       - run:
-          name: Build
-          command: docker push $ECR_REPOSITORY_BASE_URL/ferje-ais-importer-prod:$CIRCLE_SHA1
+          name: Push
+          environment:
+            # Set default region here to prevent circleci from masking us-east-1 in terraform plans
+            AWS_DEFAULT_REGION: us-east-1
+            ECR_BASE_URL: "314397620259.dkr.ecr.us-east-1.amazonaws.com"
+          command: docker push $ECR_BASE_URL/ferje-ais-importer-prod:$CIRCLE_SHA1
   plan-production:
     docker:
       - image: lindhagen/terraform-azure-util:0.14.3
@@ -66,10 +78,16 @@ jobs:
     steps:
       - checkout
       - run:
+          command: export AWS_DEFAULT_REGION=us-east-1
+      - run:
           name: Set docker image tag
           command: export TF_ENV_docker_image_tag=${CIRCLE_SHA1}
       - run:
           name: terraform init & plan
+          environment:
+            # Set default region here to prevent circleci from masking us-east-1 in terraform plans
+            AWS_DEFAULT_REGION: us-east-1
+            ECR_BASE_URL: "314397620259.dkr.ecr.us-east-1.amazonaws.com"
           command: |
             cd terraform/prod
             terraform init -input=false
@@ -91,6 +109,10 @@ jobs:
           command: export TF_ENV_docker_image_tag=${CIRCLE_SHA1}
       - run:
           name: Terraform apply
+          environment:
+            # Set default region here to prevent circleci from masking us-east-1 in terraform plans
+            AWS_DEFAULT_REGION: us-east-1
+            ECR_BASE_URL: "314397620259.dkr.ecr.us-east-1.amazonaws.com"
           command: |
             cd terraform/prod
             terraform apply -auto-approve tfapply
@@ -104,10 +126,14 @@ workflows:
   main:
     jobs:
 #      - build-and-test
-      - push-docker-image
+      - push-docker-image:
+          filters:
+            branches:
+              only: master
       - plan-production
       - apply-production:
           requires:
+            - push-docker-image
             - plan-production
           filters:
             branches:

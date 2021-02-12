@@ -1,11 +1,17 @@
 terraform {
-  required_version = "0.13.2"
+  required_version = "0.14.3"
 
   required_providers {
     aws = {
       source = "hashicorp/aws"
       version = "3.27.0"
     }
+  }
+
+  backend "s3" {
+    bucket = "lokalvert-terraform-state"
+    key    = "ferje-ais-importer/prod.terraform.tfstate"
+    region = "us-east-1"
   }
 }
 
