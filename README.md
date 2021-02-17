@@ -19,3 +19,7 @@ We haven't created any scrambled testdata yet. In the mean time will you have to
     1. `source ./venv/bin/activate`
     1. `pip3 install -r requirements-frozen.txt`
 1. Run the tests through PyCharm, VSCode or terminal (whatever you prefer)
+
+Our Python tests uses the package [moto](https://pypi.org/project/moto/). It simplifies interactions with AWS when running 
+tests by simulating an actual environment, but is in reality only run locally. This allows you as developer to interact with AWS as normal, 
+using [boto3](https://boto3.amazonaws.com/). See `ferjeimporter/tests/ test_import_success` for a working example. 

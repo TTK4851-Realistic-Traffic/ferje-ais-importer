@@ -33,4 +33,4 @@ def filter_and_clean_ais_items(signals, shipinformation):
     :return:
     """
     print('AIS contents')
-    print(signals)
+    print(signals[:40])
