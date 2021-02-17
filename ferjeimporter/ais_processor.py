@@ -23,7 +23,7 @@ def is_signal_inside_area(signal, area: CoordinatesArea):
     return True
 
 
-def filter_and_clean_ais_items(ais_items):
+def filter_and_clean_ais_items(signals, shipinformation):
     """
     Responsible for removing any irrelevant AIS signals.
 
@@ -33,4 +33,4 @@ def filter_and_clean_ais_items(ais_items):
     :return:
     """
     print('AIS contents')
-    print(ais_items)
+    print(signals)
