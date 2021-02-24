@@ -1,13 +1,16 @@
+from moto import mock_s3, mock_sqs
 import boto3
 import os
-from unittest import TestCase
-from moto import mock_s3, mock_sqs
+from unittest import TestCase, mock
 
 from ferjeimporter.main import handler
 from ferjeimporter.tests.aws_test_helper import S3BucketFile, s3_event_bucket_uploaded
 
+AWS_DEFAULT_REGION = 'us-east-1'
 TEST_S3_BUCKET_NAME = 'my-test-bucket'
+TEST_SQS_QUEUE_NAME = 'ferje-ais-importer-test-pathtaker-source'
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
 
 def _read_testdata(name):
     with open(f'{dir_path}/testdata/{name}', 'r') as f:
@@ -18,16 +21,40 @@ def _read_testdata(name):
 @mock_sqs
 class IngestAisData(TestCase):
     s3 = None
+    sqs = None
 
     def setUp(self) -> None:
         """
         Creates our mocked S3 bucket which ferjeimporter.main.handler will automatically connect to
         :return:
         """
-        s3 = boto3.resource('s3', region_name='us-east-1')
-        s3.create_bucket(Bucket=TEST_S3_BUCKET_NAME)
+        # Ensure test setup uses the correct test credentials
+        os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+        os.environ['AWS_SECURITY_TOKEN'] = 'testing'
+        os.environ['AWS_SESSION_TOKEN'] = 'testing'
 
-        self.s3 = boto3.client('s3', region_name='us-east-1')
+        # Initialize S3 test-bucket
+        s3 = boto3.resource('s3', region_name=AWS_DEFAULT_REGION)
+        s3.create_bucket(Bucket=TEST_S3_BUCKET_NAME)
+        self.s3 = boto3.client('s3', region_name=AWS_DEFAULT_REGION)
+        # Initialize SQS test-queue
+        sqs = boto3.resource('sqs', region_name=AWS_DEFAULT_REGION)
+        test_queue = sqs.create_queue(QueueName=TEST_SQS_QUEUE_NAME, Attributes={'DelaySeconds': '0'})
+        self.sqs = boto3.client('sqs')
+
+        environment_patcher = mock.patch.dict(os.environ, {
+            'SQS_QUEUE_URL': test_queue.url,
+            # Ensure our system looks for resources in the correct region
+            'AWS_DEFAULT_REGION': AWS_DEFAULT_REGION,
+            # Prevent any use of non-test credentials
+            'AWS_ACCESS_KEY_ID': 'testing',
+            'AWS_SECRET_ACCESS_KEY': 'testing',
+            'AWS_SECURITY_TOKEN': 'testing',
+            'AWS_SESSION_TOKEN': 'testing',
+        })
+        environment_patcher.start()
+        self.addCleanup(environment_patcher.stop)
 
     def test_import_success(self):
         """
