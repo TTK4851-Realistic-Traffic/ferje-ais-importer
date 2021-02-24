@@ -1,0 +1,15 @@
+{
+    "python.pythonPath": "venv/bin/python",
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}",
+    },
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}",
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder}",
+    },
+    "python.envFile": "${workspaceFolder}/.env",
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "pythonTestExplorer.testFramework": "unittest"
+}
