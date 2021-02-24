@@ -1,7 +1,10 @@
 ferje-ais-importer
 ===
 
+Ferje-AIS-importer is responsible for reading one or multiple files of raw AIS data from an AWS S3 bucket, 
+filter out irrelevant signals and locations and pass the relevant data to an AWS SQS queue.
 
+Storing these signals and making them available for clients are the responsibility of ferje-pathtaker.
 
 ## Local development
 
