@@ -20,6 +20,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_region" "current" {}
+
 locals {
   application_name = "ferje-ais-importer"
   environment = "prod"
@@ -42,4 +44,6 @@ module "ferjeimporter" {
   function_handler = "main.handler"
   docker_image_tag = local.last_commit_sha
   tags = local.tags
+
+  region = data.aws_region.current.name
 }

@@ -126,15 +126,15 @@ workflows:
   main:
     jobs:
 #      - build-and-test
-      - push-docker-image:
-          filters:
-            branches:
-              only: master
+      - push-docker-image
+#          filters:
+#            branches:
+#              only: master
       - plan-production
       - apply-production:
           requires:
             - push-docker-image
             - plan-production
-          filters:
-            branches:
-              only: master
+#          filters:
+#            branches:
+#              only: master
