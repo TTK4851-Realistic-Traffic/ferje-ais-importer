@@ -22,7 +22,7 @@ def handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
 
     print(f'File uploaded to bucket: {bucket} -> {filename}. Parsing...')
-    print('')
+
     data = s3.get_object(Bucket=bucket, Key=filename)
     contents = data['Body'].read()
 
@@ -31,7 +31,7 @@ def handler(event, context):
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
     sqs.send_message(
-        QueueUrl=os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>'),
+        QueueUrl=queue_url,
         DelaySeconds=0,
         MessageBody=json.dumps({
             'filename': filename,
