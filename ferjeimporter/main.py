@@ -1,9 +1,11 @@
 import json
+import os
 import boto3
 
 from ferjeimporter.ais_processor import filter_and_clean_ais_items
 
 s3 = boto3.client('s3')
+sqs = boto3.client('sqs')
 
 
 def handler(event, context):
@@ -23,6 +25,17 @@ def handler(event, context):
     contents = data['Body'].read()
 
     filter_and_clean_ais_items(contents, [])
+
+    print('Writing to SQS...')
+    sqs.send_message(
+        QueueUrl=os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>'),
+        DelaySeconds=0,
+        MessageBody=json.dumps({
+            'filename': filename,
+            'bucket': bucket,
+        })
+    )
+    print('Done writing!')
 
     # Processed files are no longer of use and can be discarded
     s3.delete_object(Bucket=bucket, Key=filename)
