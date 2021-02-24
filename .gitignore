@@ -11,6 +11,8 @@ out.zip
 .idea
 .vscode
 
+__pycache__
+
 tfapply
 
 # Ignore all actual files inside here, because they have not been properly scrambled yet

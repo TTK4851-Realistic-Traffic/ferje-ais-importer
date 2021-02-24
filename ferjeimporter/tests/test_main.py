@@ -1,19 +1,21 @@
 import boto3
+import os
 from unittest import TestCase
-from moto import mock_s3
+from moto import mock_s3, mock_sqs
 
 from ferjeimporter.main import handler
 from ferjeimporter.tests.aws_test_helper import S3BucketFile, s3_event_bucket_uploaded
 
 TEST_S3_BUCKET_NAME = 'my-test-bucket'
-
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def _read_testdata(name):
-    with open(f'./testdata/{name}', 'r') as f:
+    with open(f'{dir_path}/testdata/{name}', 'r') as f:
         return f.read()
 
 
 @mock_s3
+@mock_sqs
 class IngestAisData(TestCase):
     s3 = None
 

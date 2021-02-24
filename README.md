@@ -17,6 +17,8 @@ We haven't created any scrambled testdata yet. In the mean time will you have to
     1. `pip3 install virtualenv`
     1. `virtualenv venv --python=python3.8`
     1. `source ./venv/bin/activate`
+       Windows users may have to use another strategy to successfully activate virtual environments 
+       https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#activating-a-virtual-environment
     1. `pip3 install -r requirements-frozen.txt`
 1. Run the tests through PyCharm, VSCode or terminal (whatever you prefer)
 
