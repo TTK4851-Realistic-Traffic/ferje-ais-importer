@@ -21,6 +21,13 @@ We haven't created any scrambled testdata yet. In the mean time will you have to
        https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#activating-a-virtual-environment
     1. `pip3 install -r requirements-frozen.txt`
 1. Run the tests through PyCharm, VSCode or terminal (whatever you prefer)
+   * For terminal users: `python -m unittest` while in root.
+   * If you get an boto3 error related to missing credentials, create (for WSL at least) the file `~/.aws/credentials` with the content
+      ```
+      [default]
+      aws_access_key_id=test
+      aws_secret_access_key=test
+      ```
 
 Our Python tests uses the package [moto](https://pypi.org/project/moto/). It simplifies interactions with AWS when running 
 tests by simulating an actual environment, but is in reality only run locally. This allows you as developer to interact with AWS as normal, 
