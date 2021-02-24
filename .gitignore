@@ -9,7 +9,7 @@ out.zip
 
 .DS_Store
 .idea
-.vscode
+.vscode/(!settings.json)
 
 __pycache__
 
