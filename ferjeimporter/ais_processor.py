@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import pandas as pd
+
 
 
 @dataclass
@@ -61,4 +63,5 @@ def filter_and_clean_ais_items(signals, shipinformation):
         
             
         signalpoints.append(data)
+    print(signalpoints)
     return shipinformation
