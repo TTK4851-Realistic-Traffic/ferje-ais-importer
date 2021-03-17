@@ -27,7 +27,8 @@ def handler(event, context):
     print(data_filename)
     print(meta_filename)
     print(bucket)
-    print(f'File uploaded to bucket: {bucket} -> {filename}. Parsing...')
+    print(f'File uploaded to bucket: {bucket} -> {data_filename}. Parsing...')
+    print(f'File uploaded to bucket: {bucket} -> {meta_filename}. Parsing...')
 
     data = s3.get_object(Bucket=bucket, Key=data_filename)
     metadata= s3.get_object(Bucket=bucket, Key=meta_filename)
