@@ -17,7 +17,7 @@ class CoordinatesArea:
 # Defines a range of lat and lon that each signal should be in.
 # We start with a fairly small area, to avoid storing too much data.
 VALID_OPERATING_AREA = CoordinatesArea(
-    min_lat=63.428929
+    min_lat=63.428929,
     max_lat=63.430550,
     min_lon=10.345295,
     max_lon=10.444677
