@@ -24,54 +24,54 @@ VALID_OPERATING_AREA = CoordinatesArea(
 )
 
 def hash_mmsi(mmsi):
-return hashlib.sha256(mmsi.encode()).hexdigest()
+    return hashlib.sha256(mmsi.encode()).hexdigest()
 
 def filter_and_clean_ais_items(signals, shipinformation):
-"""
-Responsible for removing any irrelevant AIS signals.
-This function may need to handle quite large lists, so it might be useful
-to exploit dataprocessing libraries, such as Pandas
-:param ais_items:
-:return:
-"""
-rows_signals = [x.split(';') for x in signals.split('\n')]
-rows_shipinformation = [x.split(';') for x in shipinformation.split('\n')]
+    """
+    Responsible for removing any irrelevant AIS signals.
+    This function may need to handle quite large lists, so it might be useful
+    to exploit dataprocessing libraries, such as Pandas
+    :param ais_items:
+    :return:
+    """
+    rows_signals = [x.split(';') for x in signals.split('\n')]
+    rows_shipinformation = [x.split(';') for x in shipinformation.split('\n')]
 
-header_signals = rows_signals[0]
-header_signals_lookup = {}
-for index, value in enumerate(header_signals):
-    header_signals_lookup[value.strip()] = index
+    header_signals = rows_signals[0]
+    header_signals_lookup = {}
+    for index, value in enumerate(header_signals):
+        header_signals_lookup[value.strip()] = index
 
-header_shipinformation = rows_shipinformation[0]
-header_shipinformation_lookup = {}
-for index, value in enumerate(header_shipinformation):
-    header_shipinformation_lookup[value.strip()] = index
+    header_shipinformation = rows_shipinformation[0]
+    header_shipinformation_lookup = {}
+    for index, value in enumerate(header_shipinformation):
+        header_shipinformation_lookup[value.strip()] = index
 
-signalpoints=[]
-timezone_Norway = pytz.timezone('Europe/Oslo')
-timezone_UTC = pytz.timezone('UTC')
+    signalpoints=[]
+    timezone_Norway = pytz.timezone('Europe/Oslo')
+    timezone_UTC = pytz.timezone('UTC')
 
-for row in rows_signals[1:]:
-    lon=float(row[header_signals_lookup['lon']])
-    lat=float(row[header_signals_lookup['lat']])
-    if (lat <= VALID_OPERATING_AREA.max_lat and lat >=VALID_OPERATING_AREA.min_lat and lon <= VALID_OPERATING_AREA.max_lon and lon >=VALID_OPERATING_AREA.min_lon):
-        print('True')
-        ship_signal = {}
-        timestamp=dt.datetime.strptime(row[header_signals_lookup['date_time_utc']], '%Y-%m-%d %H:%M:%S')
-        localized_timestamp = timezone_Norway.localize(timestamp)      
-        new_timezone_timestamp = localized_timestamp.astimezone(timezone_UTC)
-        ship_signal['timestamp'] =str(new_timezone_timestamp)
-        ship_signal['ferryId'] = hash_mmsi(row[header_signals_lookup['mmsi']])
-        ship_signal['lat'] = lat
-        ship_signal['lon'] = lon
-        ship_signal['source'] = "ais"
-        metadata = {}
-        for r in rows_shipinformation[1:]:
-            if ship_signal['ferryId'] == r[header_shipinformation_lookup['mmsi']].strip():
-                metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
-                metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
-                metadata["type"] = r[header_shipinformation_lookup["type"]]
-        metadata["heading"] = float(row[header_signals_lookup['true_heading']])
-        ship_signal['metadata']=metadata
-        signalpoints.append(ship_signal)
-return signalpoints
+    for row in rows_signals[1:]:
+        lon=float(row[header_signals_lookup['lon']])
+        lat=float(row[header_signals_lookup['lat']])
+        if (lat <= VALID_OPERATING_AREA.max_lat and lat >=VALID_OPERATING_AREA.min_lat and lon <= VALID_OPERATING_AREA.max_lon and lon >=VALID_OPERATING_AREA.min_lon):
+            print('True')
+            ship_signal = {}
+            timestamp=dt.datetime.strptime(row[header_signals_lookup['date_time_utc']], '%Y-%m-%d %H:%M:%S')
+            localized_timestamp = timezone_Norway.localize(timestamp)      
+            new_timezone_timestamp = localized_timestamp.astimezone(timezone_UTC)
+            ship_signal['timestamp'] =str(new_timezone_timestamp)
+            ship_signal['ferryId'] = hash_mmsi(row[header_signals_lookup['mmsi']])
+            ship_signal['lat'] = lat
+            ship_signal['lon'] = lon
+            ship_signal['source'] = "ais"
+            metadata = {}
+            for r in rows_shipinformation[1:]:
+                if ship_signal['ferryId'] == r[header_shipinformation_lookup['mmsi']].strip():
+                    metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
+                    metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
+                    metadata["type"] = r[header_shipinformation_lookup["type"]]
+            metadata["heading"] = float(row[header_signals_lookup['true_heading']])
+            ship_signal['metadata']=metadata
+            signalpoints.append(ship_signal)
+    return signalpoints
