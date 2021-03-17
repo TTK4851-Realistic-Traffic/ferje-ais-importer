@@ -17,10 +17,10 @@ class CoordinatesArea:
 # Defines a range of lat and lon that each signal should be in.
 # We start with a fairly small area, to avoid storing too much data.
 VALID_OPERATING_AREA = CoordinatesArea(
-    min_lat=63.0,
-    max_lat=64.0,
-    min_lon=7,
-    max_lon=10.5999
+    min_lat=63.428929
+    max_lat=63.430550,
+    min_lon=10.345295,
+    max_lon=10.444677
 )
 
 def hash_mmsi(mmsi):
