@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 import datetime as dt
 import pytz
+import hashlib
 # ...
 # 
 
@@ -16,11 +17,15 @@ class CoordinatesArea:
 # Defines a range of lat and lon that each signal should be in.
 # We start with a fairly small area, to avoid storing too much data.
 VALID_OPERATING_AREA = CoordinatesArea(
-    min_lat=63.3762,
-    max_lat=63.58,
-    min_lon=10.26,
+    min_lat=63.0,
+    max_lat=64.0,
+    min_lon=7,
     max_lon=10.5999
 )
+
+def hash_mmsi(mmsi):
+    return hashlib.sha256(mmsi.encode()).hexdigest()
+
 def filter_and_clean_ais_items(signals, shipinformation):
     """
     Responsible for removing any irrelevant AIS signals.
@@ -47,26 +52,29 @@ def filter_and_clean_ais_items(signals, shipinformation):
     timezone_UTC = pytz.timezone('UTC')
 
     for row in rows_signals[1:]:
-        ship_signal = {}
-        timestamp=dt.datetime.strptime(row[header_signals_lookup['date_time_utc']], '%Y-%m-%d %H:%M:%S')
-        localized_timestamp = timezone_Norway.localize(timestamp)      
-        new_timezone_timestamp = localized_timestamp.astimezone(timezone_UTC)
-        ship_signal['timestamp'] =str(new_timezone_timestamp)
-        ship_signal['ferryId'] = row[header_signals_lookup['mmsi']]
-        ship_signal['lat'] = float(row[header_signals_lookup['lat']])
-        ship_signal['lon'] = float(row[header_signals_lookup['lon']])
-        ship_signal['source'] = "ais"
-        metadata = {}
-        for r in rows_shipinformation[1:]:
-            if ship_signal['ferryId'] == r[header_shipinformation_lookup['mmsi']].strip():
-                metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
-                metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
-                metadata["type"] = r[header_shipinformation_lookup["type"]]
-        metadata["heading"] = float(row[header_signals_lookup['true_heading']])
-        ship_signal['metadata']=metadata
-        signalpoints.append(ship_signal)
-        print(signalpoints)
-    
+        lon=float(row[header_signals_lookup['lon']])
+        lat=float(row[header_signals_lookup['lat']])
+        if (lat <= VALID_OPERATING_AREA.max_lat and lat >=VALID_OPERATING_AREA.min_lat and lon <= VALID_OPERATING_AREA.max_lon and lon >=VALID_OPERATING_AREA.min_lon):
+            print('True')
+            ship_signal = {}
+            timestamp=dt.datetime.strptime(row[header_signals_lookup['date_time_utc']], '%Y-%m-%d %H:%M:%S')
+            localized_timestamp = timezone_Norway.localize(timestamp)      
+            new_timezone_timestamp = localized_timestamp.astimezone(timezone_UTC)
+            ship_signal['timestamp'] =str(new_timezone_timestamp)
+            ship_signal['ferryId'] = hash_mmsi(row[header_signals_lookup['mmsi']])
+            ship_signal['lat'] = lat
+            ship_signal['lon'] = lon
+            ship_signal['source'] = "ais"
+            metadata = {}
+            for r in rows_shipinformation[1:]:
+                if ship_signal['ferryId'] == r[header_shipinformation_lookup['mmsi']].strip():
+                    metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
+                    metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
+                    metadata["type"] = r[header_shipinformation_lookup["type"]]
+            metadata["heading"] = float(row[header_signals_lookup['true_heading']])
+            ship_signal['metadata']=metadata
+            signalpoints.append(ship_signal)
+            print(signalpoints)  
     return signalpoints
 
 if __name__ == '__main__':
