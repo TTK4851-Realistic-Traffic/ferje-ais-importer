@@ -17,25 +17,27 @@ def handler(event, context):
     # This is the reason why we have placed the declaration inside the handler function
     s3 = boto3.client('s3')
     sqs = boto3.client('sqs')
-
     print(event)
-    
     filename = event['Records'][0]['s3']['object']['key']
     bucket = event['Records'][0]['s3']['bucket']['name']
-
+    print(filename)
+    print(bucket)
     print(f'File uploaded to bucket: {bucket} -> {filename}. Parsing...')
 
     data = s3.get_object(Bucket=bucket, Key=filename)
     contents = data['Body'].read()
 
     filter_and_clean_ais_items(contents, [])
-    
+
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
     sqs.send_message(
         QueueUrl=queue_url,
         DelaySeconds=0,
-        MessageBody=json.dumps(filter_and_clean_ais_items(signals, shipinformation):)
+        MessageBody=json.dumps({
+            'filename': filename,
+            'bucket': bucket,
+        })
     )
     print('Done writing!')
 
