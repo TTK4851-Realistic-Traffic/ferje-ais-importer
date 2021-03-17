@@ -22,8 +22,13 @@ def handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     meta_filename=data_filename.replace('.csv', '') + '_shipdata.csv'
 
-    if meta_filename.endswith('_shipdata.csv') == '_shipdata.csv':
-        print('Sucsess')
+    if not  meta_filename.endswith('_shipdata.csv') == '_shipdata.csv':
+        print('Wrong file, exiting ...')
+        return {
+        'statusCode': 200,
+        'body': ''
+    }
+    
     print(data_filename)
     print(meta_filename)
     print(bucket)
@@ -51,8 +56,5 @@ def handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps({
-            'file': filename,
-            'bucket': bucket,
-        })
+        'body': ''
     }
