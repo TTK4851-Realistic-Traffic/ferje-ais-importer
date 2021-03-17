@@ -20,7 +20,6 @@ VALID_OPERATING_AREA = CoordinatesArea(
     max_lon=10.5999
 )
 
-
 def is_signal_inside_area(signal, area: CoordinatesArea):
     return True
 
@@ -63,5 +62,5 @@ def filter_and_clean_ais_items(signals, shipinformation):
         
             
         signalpoints.append(data)
-    print(signalpoints)
+    ##print(signalpoints)
     return shipinformation
