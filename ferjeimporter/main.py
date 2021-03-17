@@ -29,13 +29,13 @@ def handler(event, context):
     contents = data['Body'].read()
 
     filter_and_clean_ais_items(contents, [])
-
+    
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
     sqs.send_message(
         QueueUrl=queue_url,
         DelaySeconds=0,
-        MessageBody=json.dumps(def filter_and_clean_ais_items(signals, shipinformation):)
+        MessageBody=json.dumps(filter_and_clean_ais_items(signals, shipinformation):)
     )
     print('Done writing!')
 
