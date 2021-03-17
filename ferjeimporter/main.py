@@ -18,27 +18,31 @@ def handler(event, context):
     s3 = boto3.client('s3')
     sqs = boto3.client('sqs')
     print(event)
-    filename = event['Records'][0]['s3']['object']['key']
+    data_filename= event['Records'][0]['s3']['object']['key']
     bucket = event['Records'][0]['s3']['bucket']['name']
-    print(filename)
+    meta_filename=data_filename.replace('.csv', '') + '_shipdata.csv'
+
+    if meta_filename.endswith('_shipdata.csv') == '_shipdata.csv':
+        print('Sucsess')
+    print(data_filename)
+    print(meta_filename)
     print(bucket)
     print(f'File uploaded to bucket: {bucket} -> {filename}. Parsing...')
 
-    data = s3.get_object(Bucket=bucket, Key=filename)
-    contents = data['Body'].read()
+    data = s3.get_object(Bucket=bucket, Key=data_filename)
+    metadata= s3.get_object(Bucket=bucket, Key=meta_filename)
+    print(data)
+    print(metadata)
+    signals= data['Body'].read()
+    shipinformation= metadata['Body'].read()
 
-    filter_and_clean_ais_items(contents, [])
+    print(signals)
+    print(shipinformation)
+
 
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
-    sqs.send_message(
-        QueueUrl=queue_url,
-        DelaySeconds=0,
-        MessageBody=json.dumps({
-            'filename': filename,
-            'bucket': bucket,
-        })
-    )
+    sqs.send_message(filter_and_clean_ais_items(signals, shipinformation))
     print('Done writing!')
 
     # Processed files are no longer of use and can be discarded
