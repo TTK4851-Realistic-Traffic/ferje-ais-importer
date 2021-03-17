@@ -18,6 +18,8 @@ def handler(event, context):
     s3 = boto3.client('s3')
     sqs = boto3.client('sqs')
 
+    print(event)
+    
     filename = event['Records'][0]['s3']['object']['key']
     bucket = event['Records'][0]['s3']['bucket']['name']
 
@@ -33,10 +35,7 @@ def handler(event, context):
     sqs.send_message(
         QueueUrl=queue_url,
         DelaySeconds=0,
-        MessageBody=json.dumps({
-            'filename': filename,
-            'bucket': bucket,
-        })
+        MessageBody=json.dumps(def filter_and_clean_ais_items(signals, shipinformation):)
     )
     print('Done writing!')
 

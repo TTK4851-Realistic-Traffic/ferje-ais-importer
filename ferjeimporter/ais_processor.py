@@ -8,19 +8,19 @@ import hashlib
 
 @dataclass
 class CoordinatesArea:
-min_lat: float = 0
-min_lon: float = 0
-max_lat: float = 0
-max_lon: float = 0
+    min_lat: float = 0
+    min_lon: float = 0
+    max_lat: float = 0
+    max_lon: float = 0
 
 
 # Defines a range of lat and lon that each signal should be in.
 # We start with a fairly small area, to avoid storing too much data.
 VALID_OPERATING_AREA = CoordinatesArea(
-min_lat=63.0,
-max_lat=64.0,
-min_lon=7,
-max_lon=10.5999
+    min_lat=63.0,
+    max_lat=64.0,
+    min_lon=7,
+    max_lon=10.5999
 )
 
 def hash_mmsi(mmsi):
@@ -74,5 +74,4 @@ for row in rows_signals[1:]:
         metadata["heading"] = float(row[header_signals_lookup['true_heading']])
         ship_signal['metadata']=metadata
         signalpoints.append(ship_signal)
-        print(signalpoints)  
 return signalpoints
