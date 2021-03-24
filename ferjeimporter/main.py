@@ -17,38 +17,36 @@ def handler(event, context):
     # This is the reason why we have placed the declaration inside the handler function
     s3 = boto3.client('s3')
     sqs = boto3.client('sqs')
-    print(event)
     data_filename= event['Records'][0]['s3']['object']['key']
     bucket = event['Records'][0]['s3']['bucket']['name']
     meta_filename=data_filename.replace('.csv', '') + '_shipdata.csv'
 
-    if not  meta_filename.endswith('_shipdata.csv') == '_shipdata.csv':
+    if  data_filename.endswith('_shipdata.csv'):
         print('Wrong file, exiting ...')
         return {
         'statusCode': 200,
         'body': ''
     }
-    
-    print(data_filename)
-    print(meta_filename)
-    print(bucket)
+
     print(f'File uploaded to bucket: {bucket} -> {data_filename}. Parsing...')
     print(f'File uploaded to bucket: {bucket} -> {meta_filename}. Parsing...')
 
     data = s3.get_object(Bucket=bucket, Key=data_filename)
     metadata= s3.get_object(Bucket=bucket, Key=meta_filename)
-    print(data)
-    print(metadata)
-    signals= data['Body'].read()
-    shipinformation= metadata['Body'].read()
 
-    print(signals)
-    print(shipinformation)
+    signals= data['Body'].read().decode('utf-8')
+    shipinformation= metadata['Body'].read().decode('utf-8')
 
 
+    filtered_signals=filter_and_clean_ais_items(signals, shipinformation)
+    print(filtered_signals[:50])
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
-    sqs.send_message(filter_and_clean_ais_items(signals, shipinformation))
+    sqs.send_message(
+        QueueUrl=queue_url,
+        DelaySeconds=0,
+        MessageBody=json.dumps(filtered_signals)
+    )
     print('Done writing!')
 
     # Processed files are no longer of use and can be discarded

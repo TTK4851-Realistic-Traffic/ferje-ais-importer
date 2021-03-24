@@ -21,6 +21,10 @@ VALID_OPERATING_AREA = CoordinatesArea(
     max_lat=63.430550,
     min_lon=10.345295,
     max_lon=10.444677
+    # min_lat=61,
+    # max_lat=63,
+    # min_lon=9,
+    # max_lon=12
 )
 
 def hash_mmsi(mmsi):
@@ -41,7 +45,6 @@ def filter_and_clean_ais_items(signals, shipinformation):
     header_signals_lookup = {}
     for index, value in enumerate(header_signals):
         header_signals_lookup[value.strip()] = index
-
     header_shipinformation = rows_shipinformation[0]
     header_shipinformation_lookup = {}
     for index, value in enumerate(header_shipinformation):
@@ -52,10 +55,12 @@ def filter_and_clean_ais_items(signals, shipinformation):
     timezone_UTC = pytz.timezone('UTC')
 
     for row in rows_signals[1:]:
+        if len(row) < len(header_shipinformation_lookup):
+            print(f'Row {row} not the same length as lookup')
+            continue       
         lon=float(row[header_signals_lookup['lon']])
         lat=float(row[header_signals_lookup['lat']])
         if (lat <= VALID_OPERATING_AREA.max_lat and lat >=VALID_OPERATING_AREA.min_lat and lon <= VALID_OPERATING_AREA.max_lon and lon >=VALID_OPERATING_AREA.min_lon):
-            print('True')
             ship_signal = {}
             timestamp=dt.datetime.strptime(row[header_signals_lookup['date_time_utc']], '%Y-%m-%d %H:%M:%S')
             localized_timestamp = timezone_Norway.localize(timestamp)      
@@ -67,7 +72,7 @@ def filter_and_clean_ais_items(signals, shipinformation):
             ship_signal['source'] = "ais"
             metadata = {}
             for r in rows_shipinformation[1:]:
-                if ship_signal['ferryId'] == r[header_shipinformation_lookup['mmsi']].strip():
+                if row[header_signals_lookup['mmsi']] == r[header_shipinformation_lookup['mmsi']].strip():
                     metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
                     metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
                     metadata["type"] = r[header_shipinformation_lookup["type"]]

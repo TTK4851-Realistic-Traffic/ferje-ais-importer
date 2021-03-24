@@ -77,7 +77,7 @@ class IngestAisData(TestCase):
         for file in uploaded_files:
             self.s3.put_object(Bucket=TEST_S3_BUCKET_NAME, Key=file.object_key, Body=file.content)
 
-        event = s3_event_bucket_uploaded(uploaded_files)
+        event = s3_event_bucket_uploaded([uploaded_files[0]])
 
         # Run our event handler
         handler(event, {})
