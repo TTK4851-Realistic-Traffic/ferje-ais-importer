@@ -71,12 +71,16 @@ def filter_and_clean_ais_items(signals, shipinformation):
             ship_signal['lon'] = lon
             ship_signal['source'] = "ais"
             metadata = {}
-            for r in rows_shipinformation[1:]:
-                if row[header_signals_lookup['mmsi']] == r[header_shipinformation_lookup['mmsi']].strip():
-                    metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
-                    metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
-                    metadata["type"] = r[header_shipinformation_lookup["type"]]
-            metadata["heading"] = float(row[header_signals_lookup['true_heading']])
-            ship_signal['metadata']=metadata
-            signalpoints.append(ship_signal)
+            if row[header_shipinformation_lookup['mmsi']].strip() in rows_shipinformation[1:]:
+                for r in rows_shipinformation[1:]:
+                    if row[header_signals_lookup['mmsi']] == r[header_shipinformation_lookup['mmsi']].strip():
+                        metadata["width"] = round(float(r[header_shipinformation_lookup['width']]),0)
+                        metadata["length"] = round(float(r[header_shipinformation_lookup["length"]]),0)
+                        metadata["type"] = r[header_shipinformation_lookup["type"]]
+                metadata["heading"] = float(row[header_signals_lookup['true_heading']])
+                ship_signal['metadata']=metadata
+                signalpoints.append(ship_signal)
+            else:
+                print('Boat in OPERATING_AREA, but not in shipInfo')
+    print(signalpoints)
     return signalpoints

@@ -65,12 +65,12 @@ class IngestAisData(TestCase):
         # Files we are using in this test
         uploaded_files = [
             S3BucketFile(
-                object_key='2018-07-01.csv',
-                content=_read_testdata('2018-07-01.csv'),
+                object_key='2018-07-02.csv',
+                content=_read_testdata('2018-07-02.csv'),
             ),
             S3BucketFile(
-                object_key='2018-07-01_shipdata.csv',
-                content=_read_testdata('2018-07-01_shipdata.csv'),
+                object_key='2018-07-02_shipdata.csv',
+                content=_read_testdata('2018-07-02_shipdata.csv'),
             ),
         ]
         # Upload the data to the mocked instance of S3
@@ -103,8 +103,8 @@ class IngestAisData(TestCase):
         """
         uploaded_files = [
             S3BucketFile(
-                object_key='2018-07-01.csv',
-                content=_read_testdata('2018-07-01.csv'),
+                object_key='2018-07-02.csv',
+                content=_read_testdata('2018-07-02.csv'),
             ),
         ]
 
