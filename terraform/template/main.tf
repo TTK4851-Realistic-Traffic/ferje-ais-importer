@@ -86,8 +86,8 @@ resource "aws_lambda_function" "ferjeaisimporter" {
   # This has to match the filename and function name in ../../ferjeimporter/main.py
   # That is to be executed
   handler       = null
-  timeout = 20
-  memory_size = 512
+  timeout = 900
+  memory_size = 1024
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:

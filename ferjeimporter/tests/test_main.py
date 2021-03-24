@@ -82,13 +82,18 @@ class IngestAisData(TestCase):
         # Run our event handler
         handler(event, {})
 
-        # Assert the outcome is correct
-        objects_in_s3 = {content['Key'] for content in self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME)['Contents']}
+        print(self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME))
 
-        # TODO This will correctly fail, because handler has not been correctly imported yet
-        # All processed files should have been deleted from S3
-        for file in uploaded_files:
-            self.assertNotIn(file.object_key, objects_in_s3)
+        list_response = self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME)
+
+        self.assertNotIn('Content', list_response)
+        # # Assert the outcome is correct
+        # objects_in_s3 = {content['Key'] for content in self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME)['Contents']}
+        #
+        # # TODO This will correctly fail, because handler has not been correctly imported yet
+        # # All processed files should have been deleted from S3
+        # for file in uploaded_files:
+        #     self.assertNotIn(file.object_key, objects_in_s3)
 
     def test_import_ignores_missing_shipdata(self):
         """

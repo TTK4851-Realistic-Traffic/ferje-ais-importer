@@ -17,9 +17,9 @@ def handler(event, context):
     # This is the reason why we have placed the declaration inside the handler function
     s3 = boto3.client('s3')
     sqs = boto3.client('sqs')
-    data_filename= event['Records'][0]['s3']['object']['key']
+    data_filename = event['Records'][0]['s3']['object']['key']
     bucket = event['Records'][0]['s3']['bucket']['name']
-    meta_filename=data_filename.replace('.csv', '') + '_shipdata.csv'
+    meta_filename = data_filename.replace('.csv', '') + '_shipdata.csv'
 
     if  data_filename.endswith('_shipdata.csv'):
         print('Wrong file, exiting ...')
@@ -32,10 +32,21 @@ def handler(event, context):
     print(f'File uploaded to bucket: {bucket} -> {meta_filename}. Parsing...')
 
     data = s3.get_object(Bucket=bucket, Key=data_filename)
-    metadata= s3.get_object(Bucket=bucket, Key=meta_filename)
+    metadata = s3.get_object(Bucket=bucket, Key=meta_filename)
 
-    signals= data['Body'].read().decode('utf-8')
-    shipinformation= metadata['Body'].read().decode('utf-8')
+    print(f'Reading signals: {data_filename}, {data["ContentLength"]}...')
+    signals = data['Body'].read()
+    print('\tClosing data-body')
+    data['Body'].close()
+    print('\tDecoding data')
+    signals = signals.decode('utf-8')
+
+    print(f'Reading metadata: {meta_filename}, {metadata["ContentLength"]}...')
+    shipinformation = metadata['Body'].read()
+    print('\tClosing metadata-body')
+    metadata['Body'].close()
+    print('\tDecoding metadata')
+    shipinformation = shipinformation.decode('utf-8')
 
 
     filtered_signals=filter_and_clean_ais_items(signals, shipinformation)
@@ -50,7 +61,8 @@ def handler(event, context):
     print('Done writing!')
 
     # Processed files are no longer of use and can be discarded
-    s3.delete_object(Bucket=bucket, Key=filename)
+    s3.delete_object(Bucket=bucket, Key=data_filename)
+    s3.delete_object(Bucket=bucket, Key=meta_filename)
 
     return {
         'statusCode': 200,
