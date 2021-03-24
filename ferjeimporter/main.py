@@ -51,18 +51,15 @@ def handler(event, context):
     print('Parsing signals...')
     filtered_signals = filter_and_clean_ais_items(signals, shipinformation)
 
-    if len(filtered_signals) < 1:
-        print('No relevant signals found. Existing...')
-        return {'statusCode': 200}
-
-    queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
-    print(f'Writing {len(filtered_signals)} items to an SQS message: {queue_url}...')
-    sqs.send_message(
-        QueueUrl=queue_url,
-        DelaySeconds=0,
-        MessageBody=json.dumps(filtered_signals)
-    )
-    print('Done writing!')
+    if len(filtered_signals) > 0:
+        queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
+        print(f'Writing {len(filtered_signals)} items to an SQS message: {queue_url}...')
+        sqs.send_message(
+            QueueUrl=queue_url,
+            DelaySeconds=0,
+            MessageBody=json.dumps(filtered_signals)
+        )
+        print('Done writing!')
 
     # Processed files are no longer of use and can be discarded
     s3.delete_object(Bucket=bucket, Key=data_filename)
