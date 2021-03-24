@@ -48,9 +48,8 @@ def handler(event, context):
     print('\tDecoding metadata')
     shipinformation = shipinformation.decode('utf-8')
 
-
-    filtered_signals=filter_and_clean_ais_items(signals, shipinformation)
-    print(filtered_signals[:50])
+    print('Parsing signals...')
+    filtered_signals = filter_and_clean_ais_items(signals, shipinformation)
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Writing to SQS: {queue_url}...')
     sqs.send_message(
