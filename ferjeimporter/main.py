@@ -5,6 +5,10 @@ import boto3
 from ferjeimporter.ais_processor import filter_and_clean_ais_items
 
 
+def chunk(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 def handler(event, context):
     """
     Triggers when objects are created in an S3 storage. Responsible for loading raw
@@ -54,13 +58,15 @@ def handler(event, context):
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Found {len(filtered_signals)} items to an SQS message: {queue_url}...')
 
-    if len(filtered_signals) > 0:
-        sqs.send_message(
-            QueueUrl=queue_url,
-            DelaySeconds=0,
-            MessageBody=json.dumps(filtered_signals)
-        )
-        print('Done writing!')
+    chunks=chunk(filtered_signals, 100)
+    for signal_chunks in chunks:
+        if len(filtered_signals) > 0:
+            sqs.send_message(
+                QueueUrl=queue_url,
+                DelaySeconds=0,
+                MessageBody=json.dumps(filtered_signals)
+            )
+    print('Done writing!')
 
     # Processed files are no longer of use and can be discarded
     s3.delete_object(Bucket=bucket, Key=data_filename)
