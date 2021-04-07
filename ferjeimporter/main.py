@@ -51,9 +51,10 @@ def handler(event, context):
     print('Parsing signals...')
     filtered_signals = filter_and_clean_ais_items(signals, shipinformation)
 
+    queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
+    print(f'Found {len(filtered_signals)} items to an SQS message: {queue_url}...')
+
     if len(filtered_signals) > 0:
-        queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
-        print(f'Writing {len(filtered_signals)} items to an SQS message: {queue_url}...')
         sqs.send_message(
             QueueUrl=queue_url,
             DelaySeconds=0,
