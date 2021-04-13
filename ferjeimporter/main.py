@@ -38,6 +38,8 @@ def handler(event, context):
     print(f'File uploaded to bucket: {bucket} -> {meta_filename}. Parsing...')
 
     data = s3.get_object(Bucket=bucket, Key=data_filename)
+    # This will fail if it cannot find the correlated metadata-file.
+    # We wish to let it fail, to ensure that AWS Lambda will retry the operation
     metadata = s3.get_object(Bucket=bucket, Key=meta_filename)
 
     print(f'Reading signals: {data_filename}, {data["ContentLength"]}...')

@@ -140,7 +140,7 @@ def filter_and_clean_ais_items(signals, shipinformation):
 
         # Does this signal have any metadata attached to it?
         if mmsi not in metadata:
-            print(f'Boat in OPERATING_AREA, but not in shipInfo. MMSI: {mmsi}. Keys: {metadata.keys()}')
+            # print(f'Boat in OPERATING_AREA, but not in shipInfo. MMSI: {mmsi}. Keys: {metadata.keys()}')
             continue
 
         ship_heading = float(row[header['true_heading']])
