@@ -62,7 +62,7 @@ def handler(event, context):
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Found {len(filtered_signals)} items to an SQS message: {queue_url}...')
 
-    chunks = chunk(filtered_signals, 100)
+    chunks = chunk(filtered_signals, 500)
     for signals in chunks:
         if len(signals) > 0:
             sqs.send_message(
