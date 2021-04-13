@@ -9,6 +9,8 @@ def chunk(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
+
+
 def handler(event, context):
     """
     Triggers when objects are created in an S3 storage. Responsible for loading raw
@@ -25,12 +27,12 @@ def handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     meta_filename = data_filename.replace('.csv', '') + '_shipdata.csv'
 
-    if  data_filename.endswith('_shipdata.csv'):
+    if data_filename.endswith('_shipdata.csv'):
         print('Wrong file, exiting ...')
         return {
-        'statusCode': 200,
-        'body': ''
-    }
+            'statusCode': 200,
+            'body': '',
+        }
 
     print(f'File uploaded to bucket: {bucket} -> {data_filename}. Parsing...')
     print(f'File uploaded to bucket: {bucket} -> {meta_filename}. Parsing...')
@@ -58,13 +60,13 @@ def handler(event, context):
     queue_url = os.environ.get('SQS_QUEUE_URL', '<No SQS_QUEUE_URL is set in this environment!>')
     print(f'Found {len(filtered_signals)} items to an SQS message: {queue_url}...')
 
-    chunks=chunk(filtered_signals, 100)
-    for signal_chunks in chunks:
-        if len(filtered_signals) > 0:
+    chunks = chunk(filtered_signals, 100)
+    for signals in chunks:
+        if len(signals) > 0:
             sqs.send_message(
                 QueueUrl=queue_url,
                 DelaySeconds=0,
-                MessageBody=json.dumps(filtered_signals)
+                MessageBody=json.dumps(signals)
             )
     print('Done writing!')
 

@@ -65,12 +65,12 @@ class IngestAisData(TestCase):
         # Files we are using in this test
         uploaded_files = [
             S3BucketFile(
-                object_key='2018-07-02.csv',
-                content=_read_testdata('2018-07-02.csv'),
+                object_key='2018-07-01.csv',
+                content=_read_testdata('2018-07-01.csv'),
             ),
             S3BucketFile(
-                object_key='2018-07-02_shipdata.csv',
-                content=_read_testdata('2018-07-02_shipdata.csv'),
+                object_key='2018-07-01_shipdata.csv',
+                content=_read_testdata('2018-07-01_shipdata.csv'),
             ),
         ]
         # Upload the data to the mocked instance of S3
@@ -85,15 +85,8 @@ class IngestAisData(TestCase):
         print(self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME))
 
         list_response = self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME)
-
+        # All processed files should have been removed
         self.assertNotIn('Content', list_response)
-        # # Assert the outcome is correct
-        # objects_in_s3 = {content['Key'] for content in self.s3.list_objects_v2(Bucket=TEST_S3_BUCKET_NAME)['Contents']}
-        #
-        # # TODO This will correctly fail, because handler has not been correctly imported yet
-        # # All processed files should have been deleted from S3
-        # for file in uploaded_files:
-        #     self.assertNotIn(file.object_key, objects_in_s3)
 
     def test_import_ignores_missing_shipdata(self):
         """
