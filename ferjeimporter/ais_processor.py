@@ -21,7 +21,7 @@ class CoordinatesArea:
 # We start with a fairly small area, to avoid storing too much data.
 VALID_OPERATING_AREA = CoordinatesArea(
     min_lat=63.428929,
-    max_lat=63.555,
+    max_lat=63.46,
     min_lon=10.345295,
     max_lon=10.444677
     # min_lat=61,
